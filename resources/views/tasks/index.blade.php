@@ -33,7 +33,11 @@
                 <div class="mb-3">
                     <label for="taskDescription" class="form-label">Description</label>
                     <textarea class="form-control" id="taskDescription" name="description" rows="3"
-                              placeholder="Enter task description (optional)..."></textarea>
+                              placeholder="Enter task description (optional)..." oninput="previewCategory()"></textarea>
+                    <small class="form-text text-muted">
+                        <i class="fas fa-magic"></i> Auto-categorization preview: 
+                        <span id="categoryPreview" class="badge bg-secondary">Other</span>
+                    </small>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <button type="submit" class="btn btn-primary btn-custom">
@@ -48,7 +52,7 @@
 
         <!-- Task Statistics -->
         <div class="row mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card text-center border-0" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px;">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-list"></i> Total Tasks</h5>
@@ -56,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card text-center border-0" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 15px;">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-check-circle"></i> Completed</h5>
@@ -64,11 +68,56 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card text-center border-0" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-radius: 15px;">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-clock"></i> Pending</h5>
                         <h2 id="pendingTasks">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border-radius: 15px;">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tags"></i> Categories</h5>
+                        <h2 id="totalCategories">4</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Statistics -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0" style="border-radius: 15px; background: #f8fafc;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="fas fa-chart-pie"></i> Category Breakdown</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="category-badge work-category me-2">Work</span>
+                                    <span id="workTasks">0</span> tasks
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="category-badge personal-category me-2">Personal</span>
+                                    <span id="personalTasks">0</span> tasks
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="category-badge learning-category me-2">Learning</span>
+                                    <span id="learningTasks">0</span> tasks
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="category-badge other-category me-2">Other</span>
+                                    <span id="otherTasks">0</span> tasks
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -78,10 +127,17 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3><i class="fas fa-clipboard-list"></i> Your Tasks</h3>
             <div class="d-flex gap-2">
-                <select id="filterStatus" class="form-control" style="width: auto;">
-                    <option value="all">All Tasks</option>
+                <select id="filterStatus" class="form-control" style="width: auto;" onchange="filterTasks()">
+                    <option value="all">All Status</option>
                     <option value="pending">Pending</option>
                     <option value="completed">Completed</option>
+                </select>
+                <select id="filterCategory" class="form-control" style="width: auto;" onchange="filterTasks()">
+                    <option value="all">All Categories</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Learning">Learning</option>
+                    <option value="Other">Other</option>
                 </select>
                 <button class="btn btn-outline-primary btn-custom" onclick="loadTasks()">
                     <i class="fas fa-sync-alt"></i> Refresh
@@ -135,7 +191,11 @@
                     <div class="mb-3">
                         <label for="editTaskDescription" class="form-label">Description</label>
                         <textarea class="form-control" id="editTaskDescription" name="description" rows="3"
-                                  placeholder="Enter task description..."></textarea>
+                                  placeholder="Enter task description..." oninput="previewEditCategory()"></textarea>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-magic"></i> Auto-categorization preview: 
+                            <span id="editCategoryPreview" class="badge bg-secondary">Other</span>
+                        </small>
                     </div>
                 </form>
             </div>
@@ -268,7 +328,10 @@
         
         const tasksHtml = tasks.map(task => `
             <div class="task-card ${task.status ? 'task-completed' : ''}">
-                <div class="task-title">${escapeHtml(task.task_name)}</div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="task-title">${escapeHtml(task.task_name)}</div>
+                    <span class="category-badge ${getCategoryClass(task.category || 'Other')}">${task.category || 'Other'}</span>
+                </div>
                 <div class="task-description">${escapeHtml(task.description || 'No description')}</div>
                 <div class="task-actions">
                     <span class="task-status ${task.status ? 'status-completed' : 'status-pending'}">
@@ -303,20 +366,39 @@
         const completed = allTasks.filter(task => task.status).length;
         const pending = total - completed;
         
+        // Status statistics
         document.getElementById('totalTasks').textContent = total;
         document.getElementById('completedTasks').textContent = completed;
         document.getElementById('pendingTasks').textContent = pending;
+        
+        // Category statistics
+        const workTasks = allTasks.filter(task => (task.category || 'Other') === 'Work').length;
+        const personalTasks = allTasks.filter(task => (task.category || 'Other') === 'Personal').length;
+        const learningTasks = allTasks.filter(task => (task.category || 'Other') === 'Learning').length;
+        const otherTasks = allTasks.filter(task => (task.category || 'Other') === 'Other').length;
+        
+        document.getElementById('workTasks').textContent = workTasks;
+        document.getElementById('personalTasks').textContent = personalTasks;
+        document.getElementById('learningTasks').textContent = learningTasks;
+        document.getElementById('otherTasks').textContent = otherTasks;
     }
     
     // Filter tasks
     function filterTasks() {
-        const filterValue = document.getElementById('filterStatus').value;
+        const filterStatus = document.getElementById('filterStatus').value;
+        const filterCategory = document.getElementById('filterCategory').value;
         let filteredTasks = allTasks;
         
-        if (filterValue === 'completed') {
-            filteredTasks = allTasks.filter(task => task.status);
-        } else if (filterValue === 'pending') {
-            filteredTasks = allTasks.filter(task => !task.status);
+        // Filter by status
+        if (filterStatus === 'completed') {
+            filteredTasks = filteredTasks.filter(task => task.status);
+        } else if (filterStatus === 'pending') {
+            filteredTasks = filteredTasks.filter(task => !task.status);
+        }
+        
+        // Filter by category
+        if (filterCategory !== 'all') {
+            filteredTasks = filteredTasks.filter(task => (task.category || 'Other') === filterCategory);
         }
         
         displayTasks(filteredTasks);
@@ -359,6 +441,9 @@
         document.getElementById('editTaskName').value = task.task_name;
         document.getElementById('editTaskDescription').value = task.description || '';
         document.getElementById('editTaskStatus').value = task.status.toString();
+        
+        // Update category preview for edit modal
+        previewEditCategory();
         
         const modal = new bootstrap.Modal(document.getElementById('editTaskModal'));
         modal.show();
@@ -446,5 +531,99 @@
         const date = new Date(dateString);
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     }
+    
+    // Get category CSS class
+    function getCategoryClass(category) {
+        switch(category) {
+            case 'Work': return 'work-category';
+            case 'Personal': return 'personal-category';
+            case 'Learning': return 'learning-category';
+            default: return 'other-category';
+        }
+    }
+    
+    // Preview category while typing
+    async function previewCategory() {
+        const taskName = document.getElementById('taskName').value;
+        const description = document.getElementById('taskDescription').value;
+        
+        if (!taskName.trim()) {
+            document.getElementById('categoryPreview').textContent = 'Other';
+            document.getElementById('categoryPreview').className = 'badge bg-secondary';
+            return;
+        }
+        
+        try {
+            const response = await apiRequest('/categorize-task', {
+                method: 'POST',
+                body: JSON.stringify({
+                    task_name: taskName,
+                    description: description
+                })
+            });
+            
+            const category = response.category;
+            const preview = document.getElementById('categoryPreview');
+            preview.textContent = category;
+            preview.className = `badge ${getCategoryBadgeClass(category)}`;
+        } catch (error) {
+            // Fallback to simple categorization
+            document.getElementById('categoryPreview').textContent = 'Other';
+            document.getElementById('categoryPreview').className = 'badge bg-secondary';
+        }
+    }
+    
+    // Get bootstrap badge class for category
+    function getCategoryBadgeClass(category) {
+        switch(category) {
+            case 'Work': return 'bg-primary';
+            case 'Personal': return 'bg-success';
+            case 'Learning': return 'bg-info';
+            default: return 'bg-secondary';
+        }
+    }
+    
+    // Preview category while typing in edit modal
+    async function previewEditCategory() {
+        const taskName = document.getElementById('editTaskName').value;
+        const description = document.getElementById('editTaskDescription').value;
+        
+        if (!taskName.trim()) {
+            document.getElementById('editCategoryPreview').textContent = 'Other';
+            document.getElementById('editCategoryPreview').className = 'badge bg-secondary';
+            return;
+        }
+        
+        try {
+            const response = await apiRequest('/categorize-task', {
+                method: 'POST',
+                body: JSON.stringify({
+                    task_name: taskName,
+                    description: description
+                })
+            });
+            
+            const category = response.category;
+            const preview = document.getElementById('editCategoryPreview');
+            preview.textContent = category;
+            preview.className = `badge ${getCategoryBadgeClass(category)}`;
+        } catch (error) {
+            document.getElementById('editCategoryPreview').textContent = 'Other';
+            document.getElementById('editCategoryPreview').className = 'badge bg-secondary';
+        }
+    }
+    
+    // Add preview on task name input too
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('taskName').addEventListener('input', previewCategory);
+        
+        // Add event listener for edit modal when it's available
+        const editModal = document.getElementById('editTaskModal');
+        if (editModal) {
+            editModal.addEventListener('shown.bs.modal', function() {
+                document.getElementById('editTaskName').addEventListener('input', previewEditCategory);
+            });
+        }
+    });
 </script>
 @endpush

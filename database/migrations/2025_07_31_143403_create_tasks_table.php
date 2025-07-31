@@ -1,20 +1,34 @@
 <?php
 
-namespace App;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Task extends Model
+class CreateTasksTable extends Migration
 {
-    protected $table = 'tasks';
-    
-    protected $fillable = [
-        'task_name',
-        'description',
-        'status'
-    ];
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('task_name');
+            $table->text('description')->nullable();
+            $table->string('category')->default('Other');
+            $table->boolean('status')->default(false);
+            $table->timestamps();
+        });
+    }
 
-    protected $casts = [
-        'status' => 'boolean'
-    ];
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('tasks');
+    }
 }

@@ -205,6 +205,37 @@
             opacity: 0.5;
         }
 
+        /* Category Badge Styles */
+        .category-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .work-category {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .personal-category {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .learning-category {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .other-category {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;

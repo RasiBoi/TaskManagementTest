@@ -20,4 +20,9 @@ Route::group(['middleware' => 'auth.token'], function () {
     Route::get('/tasks/{id}', 'TaskController@show');
     Route::put('/tasks/{id}', 'TaskController@update');
     Route::delete('/tasks/{id}', 'TaskController@destroy');
+    
+    // Task categorization routes
+    Route::post('/categorize-task', 'TaskCategorizerController@categorizeTask');
+    Route::get('/categorize-test', 'TaskCategorizerController@testCategorization');
+    Route::get('/categories', 'TaskCategorizerController@getCategories');
 });

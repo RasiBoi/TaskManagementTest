@@ -1,5 +1,5 @@
 <?php
-// Simple test to check database connectivity
+// Enhanced database check script
 
 echo "Testing Laravel Database Connection...\n";
 
@@ -18,9 +18,25 @@ try {
     if (count($tables) > 0) {
         echo "✅ Tasks table exists!\n";
         
-        // Count tasks
+        // Get table structure
+        $columns = $db->select("PRAGMA table_info(tasks)");
+        echo "\nTable structure:\n";
+        foreach ($columns as $column) {
+            echo "- {$column->name} ({$column->type})" . 
+                 ($column->dflt_value ? " DEFAULT {$column->dflt_value}" : "") . "\n";
+        }
+        
+        // Count tasks and check category data
         $count = $db->select("SELECT COUNT(*) as count FROM tasks")[0];
-        echo "📊 Tasks count: " . $count->count . "\n";
+        echo "\n📊 Tasks count: " . $count->count . "\n";
+        
+        // Check last few tasks
+        $tasks = $db->select("SELECT id, task_name, category FROM tasks ORDER BY id DESC LIMIT 3");
+        echo "\nLast 3 tasks:\n";
+        foreach ($tasks as $task) {
+            echo "ID: {$task->id}, Name: {$task->task_name}, Category: {$task->category}\n";
+        }
+        
     } else {
         echo "❌ Tasks table does not exist!\n";
     }
