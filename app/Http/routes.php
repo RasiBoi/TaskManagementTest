@@ -11,9 +11,9 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'WebTaskController@index');
+Route::get('/tasks', 'WebTaskController@index');
+Route::get('/dashboard', 'WebTaskController@dashboard');
 
 use Illuminate\Http\Request;
 
