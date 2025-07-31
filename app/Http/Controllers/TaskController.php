@@ -4,14 +4,46 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Task;
+use App\Services\OpenAICategorizationService;
 
 class TaskController extends Controller
 {
     /**
-     * Auto-categorize a task based on its name and description
-     * (Imported from TaskCategorizerController for integration)
+     * Auto-categorize a task using OpenAI
      */
     private function autoCategorizeTask($task)
+    {
+        $apiKey = env('OPENAI_API_KEY');
+        
+        if ($this->isValidOpenAIKey($apiKey)) {
+            // Use OpenAI for categorization
+            try {
+                $openAIService = new OpenAICategorizationService($apiKey);
+                return $openAIService->categorizeTask($task);
+            } catch (Exception $e) {
+                // Fall back to keyword-based categorization if OpenAI fails
+                return $this->fallbackCategorization($task);
+            }
+        } else {
+            // Use fallback categorization if no API key
+            return $this->fallbackCategorization($task);
+        }
+    }
+
+    /**
+     * Check if OpenAI API key is valid
+     */
+    private function isValidOpenAIKey($key)
+    {
+        return !empty($key) && 
+               $key !== 'your_openai_api_key_here' && 
+               (strpos($key, 'sk-') === 0 || strpos($key, 'skproj') === 0);
+    }
+
+    /**
+     * Fallback categorization using keywords (if OpenAI fails or no API key)
+     */
+    private function fallbackCategorization($task)
     {
         // Extract task name and description, convert to lowercase for matching
         $taskName = strtolower(isset($task['task_name']) ? $task['task_name'] : '');
