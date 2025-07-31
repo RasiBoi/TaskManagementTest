@@ -5,8 +5,17 @@
  * Tests OpenAI connection directly without Laravel dependencies
  */
 
-// Your API key
-$apiKey = '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';
+// Load environment variables
+require_once __DIR__ . '/vendor/autoload.php';
+$dotenv = new Dotenv\Dotenv(__DIR__);
+$dotenv->load();
+
+// Get API key from environment
+$apiKey = getenv('OPENAI_API_KEY');
+
+if (!$apiKey) {
+    die("❌ Error: OPENAI_API_KEY not found in environment variables.\nPlease set your API key in the .env file.\n");
+}
 
 echo "🔑 Testing OpenAI API Connection...\n";
 echo "API Key: " . substr($apiKey, 0, 20) . "...\n\n";
