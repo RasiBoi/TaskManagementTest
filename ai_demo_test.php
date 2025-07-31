@@ -5,6 +5,7 @@
  * Tests various types of tasks to demonstrate AI intelligence
  */
 
+<<<<<<< HEAD
 // Load environment variables
 require_once __DIR__ . '/vendor/autoload.php';
 $dotenv = new Dotenv\Dotenv(__DIR__);
@@ -16,6 +17,10 @@ $apiKey = getenv('OPENAI_API_KEY');
 if (!$apiKey) {
     die("❌ Error: OPENAI_API_KEY not found in environment variables.\nPlease set your API key in the .env file.\n");
 }
+=======
+// Your API key
+$apiKey = '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';
+>>>>>>> fc9578d (ai integration done)
 
 echo "🧠 AI Task Categorization Demo\n";
 echo "=" . str_repeat("=", 50) . "\n\n";
